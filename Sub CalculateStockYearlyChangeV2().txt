@@ -1,0 +1,110 @@
+Sub CalculateStockYearlyChange()
+   
+    'Make actions take place on every worksheet in the woorkbook
+        For Each ws In Worksheets
+        ws.Activate
+    
+    'Label Columns and make them fit
+        
+        Range("I1").Value = "Ticker"
+        Range("J1").Value = "Yearly Change"
+        Range("K1").Value = "Percent Change"
+        Range("L1").Value = "Total Stock Volume"
+        Columns("I:L").AutoFit
+                    
+       
+    'Summary of Data
+    
+        ws.Range("P1").Value = "Ticker"
+        ws.Range("Q1").Value = "Value"
+        ws.Range("O2").Value = "Greatest % Increase"
+        ws.Range("O3").Value = "Greatest % Decrease"
+        ws.Range("O4").Value = "Greatest Total Volume"
+
+    'Count unique values in cells
+    
+        lastrow = Cells(Rows.Count, "A").End(xlUp).Row
+        
+    'More Variables
+     
+        totalvolume = 0
+        openprice = Cells(2, "C").Value
+        beginning = 2
+        
+    'Add for loop
+    
+        For i = 2 To lastrow
+       
+    'Add else/if statments
+
+        If Cells(i, "A").Value = Cells(i + 1, "A").Value Then
+               totalvolume = totalvolume + Cells(i, "G").Value
+
+        Else
+               totalvolume = totalvolume + Cells(i, "G").Value
+               closeprice = Cells(i, "F").Value
+               yearlychange = closeprice - openprice
+               
+        If openprice <> 0 Then
+               
+               percentchange = yearlychange / openprice * 100
+               openprice = Cells(i + 1, "C").Value
+               
+        End If
+                
+               Cells(beginning, "I").Value = Cells(i, "A").Value
+               Cells(beginning, "J").Value = yearlychange
+               Cells(beginning, "K").Value = "%" & percentchange
+               Cells(beginning, "L").Value = totalvolume
+               
+    'Conditional Formatting to add colors
+      
+        If yearlychange > 0 Then
+                Range("J" & beginning).Interior.Color = vbGreen
+        ElseIf yearlychange < 0 Then
+                Range("J" & beginning).Interior.Color = vbRed
+        Else
+                Range("J" & beginning).Interior.Color = vbWhite
+                   
+    'Ends if all of the following conditions are met:
+     
+        End If
+               totalvolume = 0
+               openprice = Cells(i + 1, "C").Value
+               beginning = beginning + 1
+
+        End If
+           
+    ' Calculates greatest percentage increase
+        If percentchange > greatestIncrease Then
+                greatestIncrease = percentchange
+                tickerGreatestIncrease = Cells(i, "A").Value
+        End If
+            
+    ' Calculates greatest percentage decrease
+        If percentchange < greatestDecrease Then
+                greatestDecrease = percentchange
+                tickerGreatestDecrease = Cells(i, "A").Value
+        End If
+            
+    ' Calculates greatest total volume
+        If totalvolume > greatestVolume Then
+                greatestVolume = totalvolume
+                tickerGreatestVolume = Cells(i, "A").Value
+        End If
+           
+        Next i
+       
+    ' Summarizes the greatest values in a summary section
+                ws.Range("P2").Value = tickerGreatestIncrease
+                ws.Range("Q2").Value = greatestIncrease / 100
+                ws.Range("P3").Value = tickerGreatestDecrease
+                ws.Range("Q3").Value = greatestDecrease / 100
+                ws.Range("P4").Value = tickerGreatestVolume
+                ws.Range("Q4").Value = greatestVolume
+       
+       
+        Next ws
+        MsgBox ("*The Wolf of Wallstreet Has Arrived*")
+
+End Sub
